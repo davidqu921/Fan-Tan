@@ -1,0 +1,149 @@
+<!--pages/admin/create.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <view class="header-left" bindtap="onGoBack">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="page-title">发布活动</text>
+    <view class="header-right"></view>
+  </view>
+
+  <!-- 表单内容 -->
+  <view class="form-container">
+    <view class="form-section">
+      <view class="form-item">
+        <text class="form-label">活动标题 *</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入活动标题" 
+          value="{{formData.title}}"
+          bindinput="onTitleInput"
+          maxlength="50"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">活动日期 *</text>
+        <picker 
+          mode="date" 
+          value="{{formData.date}}" 
+          bindchange="onDateChange"
+          start="{{today}}"
+        >
+          <view class="picker-input">
+            <text class="picker-text {{formData.date ? '' : 'placeholder'}}">
+              {{formData.date || '请选择日期'}}
+            </text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">活动时间 *</text>
+        <picker 
+          mode="time" 
+          value="{{formData.time}}" 
+          bindchange="onTimeChange"
+        >
+          <view class="picker-input">
+            <text class="picker-text {{formData.time ? '' : 'placeholder'}}">
+              {{formData.time || '请选择时间'}}
+            </text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">活动地点 *</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入活动地点" 
+          value="{{formData.location}}"
+          bindinput="onLocationInput"
+          maxlength="100"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">活动规则</text>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入活动规则和注意事项" 
+          value="{{formData.rules}}"
+          bindinput="onRulesInput"
+          maxlength="500"
+          auto-height
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">最大人数</text>
+        <input 
+          class="form-input" 
+          placeholder="不限制请留空" 
+          value="{{formData.maxCount}}"
+          bindinput="onMaxCountInput"
+          type="number"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">最晚取消时间</text>
+        <view class="datetime-picker-group">
+          <picker 
+            mode="date" 
+            value="{{formData.cancelDeadlineDate}}" 
+            bindchange="onCancelDeadlineDateChange"
+            start="{{today}}"
+          >
+            <view class="picker-input datetime-picker">
+              <text class="picker-text {{formData.cancelDeadlineDate ? '' : 'placeholder'}}">
+                {{formData.cancelDeadlineDate || '选择日期'}}
+              </text>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+          <picker 
+            mode="time" 
+            value="{{formData.cancelDeadlineTime}}" 
+            bindchange="onCancelDeadlineTimeChange"
+          >
+            <view class="picker-input datetime-picker">
+              <text class="picker-text {{formData.cancelDeadlineTime ? '' : 'placeholder'}}">
+                {{formData.cancelDeadlineTime || '选择时间'}}
+              </text>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+        <text class="form-hint">超过此时间后，用户无法取消报名</text>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">活动描述</text>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入活动详细描述" 
+          value="{{formData.description}}"
+          bindinput="onDescriptionInput"
+          maxlength="1000"
+          auto-height
+        />
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="submit-section">
+      <button 
+        class="submit-btn {{canSubmit ? 'active' : 'disabled'}}" 
+        bindtap="onSubmit"
+        disabled="{{!canSubmit || submitting}}"
+      >
+        {{submitting ? '发布中...' : '发布活动'}}
+      </button>
+    </view>
+  </view>
+</view>

@@ -76,13 +76,17 @@
 
 .input-field {
   width: 100%;
-  padding: 24rpx;
+  height: 88rpx;
+  padding: 0 24rpx;
   border: 2rpx solid var(--border-color);
   border-radius: var(--radius-input);
   font-size: var(--font-body);
+  line-height: 88rpx;
   background-color: var(--white);
+  color: var(--text-color);
   box-sizing: border-box;
   transition: border-color 0.3s ease;
+  vertical-align: middle;
 }
 
 .input-field:focus {

@@ -37,9 +37,13 @@
 /* 用户信息区域 */
 .user-info-section {
   margin: 24rpx 32rpx;
+  padding: 40rpx 32rpx;
+}
+
+.user-info-content {
   display: flex;
   align-items: center;
-  padding: 40rpx 32rpx;
+  margin-bottom: 24rpx;
 }
 
 .user-avatar {
@@ -62,11 +66,41 @@
   color: var(--text-light);
 }
 
+.user-email {
+  color: var(--text-light);
+  font-size: 22rpx;
+  margin-top: 4rpx;
+  opacity: 0.8;
+}
+
+.user-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
 .login-btn {
   padding: 16rpx 32rpx;
   font-size: var(--font-body);
   min-width: 120rpx;
 }
+
+.test-btn {
+  padding: 12rpx 24rpx;
+  font-size: var(--font-caption);
+  min-width: 120rpx;
+}
+
+.clear-btn {
+  padding: 12rpx 24rpx;
+  font-size: var(--font-caption);
+  min-width: 120rpx;
+  background-color: #ffebee;
+  color: #c62828;
+  border-color: #c62828;
+}
+
+
 
 /* 统计信息 */
 .stats-section {

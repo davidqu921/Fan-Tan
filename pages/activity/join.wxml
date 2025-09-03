@@ -20,14 +20,11 @@
     <view class="form-title text-subtitle">报名信息</view>
     
     <view class="input-group">
-      <label class="input-label input-required">姓名或昵称</label>
-      <input 
-        class="input-field" 
-        placeholder="请输入您的姓名或昵称" 
-        value="{{formData.name}}"
-        bindinput="onNameInput"
-        maxlength="20"
-      />
+      <label class="input-label">姓名或昵称</label>
+      <view class="user-info-display">
+        <text class="user-name">{{userInfo.nickName || '未登录用户'}}</text>
+        <text class="user-hint text-caption">将使用您的登录用户名</text>
+      </view>
     </view>
 
     <view class="input-group">
@@ -74,7 +71,7 @@
     <button 
       class="btn btn-primary submit-btn" 
       bindtap="onSubmitJoin"
-      disabled="{{!formData.name.trim() || submitting}}"
+      disabled="{{!canSubmit || submitting}}"
       loading="{{submitting}}"
     >
       {{submitting ? '提交中...' : '确认报名'}}

@@ -23,6 +23,9 @@
       <text class="icon">🏸</text>
       <text class="text-body">暂无活动</text>
       <text class="text-caption mt-16">管理员还没有发布活动</text>
+      <view wx:if="{{isAdmin}}" class="empty-actions">
+        <button class="btn btn-primary" bindtap="onCreateActivity">发布第一个活动</button>
+      </view>
     </view>
 
     <view wx:for="{{activities}}" wx:key="id" class="activity-card" bindtap="onActivityTap" data-id="{{item.id}}">
@@ -79,8 +82,15 @@
     <text>加载中...</text>
   </view>
 
-  <!-- 浮动发布按钮（管理员可见） -->
-  <view wx:if="{{isAdmin}}" class="fab" bindtap="onCreateActivity">
-    <text class="fab-icon">+</text>
+  <!-- 浮动按钮组（管理员可见） -->
+  <view wx:if="{{isAdmin}}" class="fab-group">
+    <!-- 清理数据按钮 -->
+    <view class="fab fab-clear" bindtap="clearAllActivities">
+      <text class="fab-icon">🗑️</text>
+    </view>
+    <!-- 发布活动按钮 -->
+    <view class="fab fab-create" bindtap="onCreateActivity">
+      <text class="fab-icon">+</text>
+    </view>
   </view>
 </view>

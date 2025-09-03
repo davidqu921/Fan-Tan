@@ -1,4 +1,6 @@
 // pages/profile/index.js
+import authService from '../../utils/auth.js'
+import activityService from '../../utils/activityService.js'
 const app = getApp()
 
 Page({
@@ -24,14 +26,52 @@ Page({
   },
 
   // 加载用户信息
-  loadUserInfo() {
-    const userInfo = app.globalData.userInfo
-    const isAdmin = app.globalData.isAdmin
-    
-    this.setData({
-      userInfo: userInfo,
-      isAdmin: isAdmin
-    })
+  async loadUserInfo() {
+    try {
+      // 首先尝试从 Firebase 获取当前用户
+      const currentUser = await authService.getCurrentUser()
+      
+      if (currentUser) {
+        // 如果 Firebase 中有用户信息，使用 Firebase 的数据
+        const userInfo = {
+          id: currentUser.uid,
+          nickName: currentUser.displayName || currentUser.email || '用户',
+          avatarUrl: currentUser.avatar || '/images/default-avatar.png',
+          email: currentUser.email,
+          role: currentUser.role
+        }
+        
+        const isAdmin = currentUser.role === 'admin'
+        
+        // 更新全局数据
+        app.globalData.userInfo = userInfo
+        app.globalData.isAdmin = isAdmin
+        
+        this.setData({
+          userInfo: userInfo,
+          isAdmin: isAdmin
+        })
+      } else {
+        // 如果 Firebase 中没有用户信息，使用全局数据
+        const userInfo = app.globalData.userInfo
+        const isAdmin = app.globalData.isAdmin
+        
+        this.setData({
+          userInfo: userInfo,
+          isAdmin: isAdmin
+        })
+      }
+    } catch (error) {
+      console.error('加载用户信息失败:', error)
+      // 降级到全局数据
+      const userInfo = app.globalData.userInfo
+      const isAdmin = app.globalData.isAdmin
+      
+      this.setData({
+        userInfo: userInfo,
+        isAdmin: isAdmin
+      })
+    }
   },
 
   // 加载用户统计
@@ -68,7 +108,6 @@ Page({
         if (res.confirm) {
           try {
             // 调用Firebase登出
-            const authService = require('../../utils/auth.js').default
             await authService.logout()
             
             // 清除本地数据
@@ -178,6 +217,97 @@ Page({
       icon: 'none'
     })
   },
+
+  // 测试 Firebase
+  async onTestFirebase() {
+    try {
+      wx.showLoading({ title: '测试中...' })
+      
+      // 先尝试登录（如果用户已存在）
+      let loginResult = await authService.login('test@example.com', 'password123')
+      
+      if (!loginResult.success) {
+        // 如果登录失败，尝试注册
+        const registerResult = await authService.register('test@example.com', 'password123', {
+          displayName: '测试用户',
+          role: 'user'
+        })
+        
+        if (registerResult.success) {
+          // 注册成功后再次尝试登录
+          loginResult = await authService.login('test@example.com', 'password123')
+        } else {
+          wx.hideLoading()
+          wx.showModal({
+            title: 'Firebase 测试失败',
+            content: `注册失败: ${registerResult.error}`,
+            showCancel: false
+          })
+          return
+        }
+      }
+      
+      if (loginResult.success) {
+        // 测试获取当前用户
+        const currentUser = await authService.getCurrentUser()
+        
+        wx.hideLoading()
+        wx.showModal({
+          title: 'Firebase 测试成功',
+          content: `✅ 登录功能正常\n✅ 获取用户信息正常\n✅ 用户认证流程完整\n\n用户ID: ${currentUser.uid}\n用户名: ${currentUser.displayName}\n角色: ${currentUser.role}`,
+          showCancel: false
+        })
+      } else {
+        wx.hideLoading()
+        wx.showModal({
+          title: 'Firebase 测试失败',
+          content: `登录失败: ${loginResult.error}`,
+          showCancel: false
+        })
+      }
+    } catch (error) {
+      wx.hideLoading()
+      wx.showModal({
+        title: 'Firebase 测试错误',
+        content: `错误: ${error.message}\n\n请检查控制台获取更多信息`,
+        showCancel: false
+      })
+      console.error('Firebase 测试错误:', error)
+    }
+  },
+
+  // 清理测试数据
+  onClearTestData() {
+    wx.showModal({
+      title: '清理测试数据',
+      content: '确定要清理所有测试数据吗？这将删除所有本地存储的用户数据。',
+      success: (res) => {
+        if (res.confirm) {
+          try {
+            // 清理本地存储的测试数据
+            wx.removeStorageSync('firebase_users')
+            wx.removeStorageSync('firebase_current_user')
+            wx.removeStorageSync('firestore_users')
+            wx.removeStorageSync('firestore_activities')
+            wx.removeStorageSync('firestore_comments')
+            
+            wx.showToast({
+              title: '测试数据已清理',
+              icon: 'success'
+            })
+          } catch (error) {
+            wx.showToast({
+              title: '清理失败',
+              icon: 'error'
+            })
+            console.error('清理测试数据失败:', error)
+          }
+        }
+      }
+    })
+  },
+
+
 
   // 关于我们
   onAbout() {

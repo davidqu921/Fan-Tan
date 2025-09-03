@@ -1,11 +1,6 @@
 // firebase-config.js
 // Firebase 配置文件
 
-// 更新为小程序兼容的导入方式
-import { initializeApp } from './lib/firebase-app.js';
-import { getAuth } from './lib/firebase-auth.js';
-import { getFirestore } from './lib/firebase-firestore.js';
-
 // 注意：这些配置信息需要从您的Firebase控制台获取
 const firebaseConfig = {
     apiKey: "AIzaSyAb7gFyiuYnEbEMglSgsYAVLmuQXalF9bw",
@@ -28,11 +23,17 @@ import {
   updateDoc,
   collection,
   getDocs,
+  addDoc,
+  query,
+  orderBy,
+  where,
+  limit,
+  startAfter,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged
-} from './lib/firebase-setup.js';
+} from './lib/firebase-real.js';
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
@@ -46,6 +47,12 @@ export {
   updateDoc,
   collection,
   getDocs,
+  addDoc,
+  query,
+  orderBy,
+  where,
+  limit,
+  startAfter,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,

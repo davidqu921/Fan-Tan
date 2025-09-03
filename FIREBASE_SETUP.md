@@ -131,14 +131,32 @@ import { getFirestore } from '../../lib/firebase-firestore.js';
 
 ## 🚀 部署步骤
 
-### 1. 测试环境
+### 1. 通过 Firebase CLI 初始化（推荐）
+
+如果遇到 Firebase Console 无法保存的问题，可以使用命令行：
+
+```bash
+# 安装 Firebase CLI
+npm install -g firebase-tools
+
+# 登录 Firebase
+firebase login
+
+# 初始化 Firestore
+firebase init firestore
+
+# 部署安全规则
+firebase deploy --only firestore:rules
+```
+
+### 2. 测试环境
 
 1. 在微信开发者工具中打开项目
 2. 确保 Firebase 配置正确
 3. 测试注册、登录功能
 4. 检查数据库中的数据
 
-### 2. 生产环境
+### 3. 生产环境
 
 1. 在 Firebase Console 中设置 Firestore 安全规则
 2. 配置认证域名白名单

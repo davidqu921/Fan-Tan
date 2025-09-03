@@ -1,4 +1,5 @@
 // pages/admin/manage.js
+import activityService from '../../utils/activityService.js'
 const app = getApp()
 
 Page({
@@ -69,15 +70,27 @@ Page({
   },
 
   // 加载活动列表
-  loadActivities() {
-    // 模拟API调用
-    setTimeout(() => {
-      const mockActivities = this.getMockActivities()
+  async loadActivities() {
+    try {
+      const result = await activityService.getActivities()
+      if (result.success) {
+        this.setData({
+          activities: result.data,
+          filteredActivities: result.data
+        })
+      } else {
+        this.setData({
+          activities: [],
+          filteredActivities: []
+        })
+      }
+    } catch (error) {
+      console.error('加载活动列表失败:', error)
       this.setData({
-        activities: mockActivities,
-        filteredActivities: mockActivities
+        activities: [],
+        filteredActivities: []
       })
-    }, 800)
+    }
   },
 
   // 筛选变化
@@ -110,41 +123,8 @@ Page({
 
   // 创建活动
   onCreateActivity() {
-    wx.showModal({
-      title: '发布活动',
-      content: '是否创建新活动？',
-      success: (res) => {
-        if (res.confirm) {
-          this.createNewActivity()
-        }
-      }
-    })
-  },
-
-  // 创建新活动
-  createNewActivity() {
-    const newActivity = {
-      id: Date.now().toString(),
-      title: '新活动',
-      date: '2024-01-20',
-      time: '14:00-16:00',
-      location: '体育馆',
-      rules: '请遵守活动规则',
-      maxCount: 20,
-      joinedCount: 0,
-      status: 'active'
-    }
-    
-    const updatedActivities = [newActivity, ...this.data.activities]
-    this.setData({
-      activities: updatedActivities
-    })
-    
-    this.filterActivities(this.data.currentFilter)
-    
-    wx.showToast({
-      title: '活动创建成功',
-      icon: 'success'
+    wx.navigateTo({
+      url: '/pages/admin/create'
     })
   },
 
@@ -182,18 +162,35 @@ Page({
   },
 
   // 执行删除活动
-  deleteActivity(activityId) {
-    const updatedActivities = this.data.activities.filter(a => a.id !== activityId)
-    this.setData({
-      activities: updatedActivities
-    })
-    
-    this.filterActivities(this.data.currentFilter)
-    
-    wx.showToast({
-      title: '删除成功',
-      icon: 'success'
-    })
+  async deleteActivity(activityId) {
+    try {
+      console.log('开始删除活动:', activityId)
+      const result = await activityService.deleteActivity(activityId)
+      console.log('删除结果:', result)
+      
+      if (result.success) {
+        // 重新加载活动列表
+        await this.loadActivities()
+        this.filterActivities(this.data.currentFilter)
+        
+        wx.showToast({
+          title: '删除成功',
+          icon: 'success'
+        })
+      } else {
+        console.error('删除失败:', result.error)
+        wx.showToast({
+          title: result.error || '删除失败',
+          icon: 'error'
+        })
+      }
+    } catch (error) {
+      console.error('删除活动失败:', error)
+      wx.showToast({
+        title: '删除失败，请重试',
+        icon: 'error'
+      })
+    }
   },
 
   // 用户管理
@@ -224,42 +221,5 @@ Page({
     wx.navigateBack()
   },
 
-  // 获取模拟活动数据
-  getMockActivities() {
-    return [
-      {
-        id: '1',
-        title: '周末羽毛球友谊赛',
-        date: '2024-01-15',
-        time: '14:00-16:00',
-        location: '体育馆A馆',
-        rules: '双打比赛，请自备球拍',
-        maxCount: 16,
-        joinedCount: 12,
-        status: 'active'
-      },
-      {
-        id: '2',
-        title: '羽毛球训练课',
-        date: '2024-01-16',
-        time: '19:00-21:00',
-        location: '体育馆B馆',
-        rules: '基础训练，适合初学者',
-        maxCount: 20,
-        joinedCount: 20,
-        status: 'full'
-      },
-      {
-        id: '3',
-        title: '羽毛球自由活动',
-        date: '2024-01-10',
-        time: '18:00-20:00',
-        location: '体育馆C馆',
-        rules: '自由组队，无限制',
-        maxCount: null,
-        joinedCount: 8,
-        status: 'ended'
-      }
-    ]
-  }
+
 })

@@ -1,10 +1,6 @@
 // utils/auth.js
 // 用户认证服务
 
-import { initializeApp } from '../lib/firebase-app.js';
-import { getAuth } from '../lib/firebase-auth.js';
-import { getFirestore } from '../lib/firebase-firestore.js';
-
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
@@ -15,9 +11,13 @@ import {
   getDoc, 
   updateDoc,
   collection,
-  getDocs
+  getDocs,
+  addDoc,
+  auth, 
+  db, 
+  USER_ROLES, 
+  USER_STATUS
 } from '../firebase-config.js';
-import { auth, db, USER_ROLES, USER_STATUS } from '../firebase-config.js';
 
 class AuthService {
   constructor() {

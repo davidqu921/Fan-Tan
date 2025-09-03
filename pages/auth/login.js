@@ -55,7 +55,7 @@ Page({
   // 检查是否可以登录
   checkCanLogin() {
     const { email, password } = this.data.formData
-    const canLogin = email.trim() && password.trim() && password.length >= 6
+    const canLogin = email && email.length > 0 && password && password.length >= 6
     this.setData({ canLogin })
   },
 
@@ -63,7 +63,7 @@ Page({
   async onLogin() {
     const { email, password } = this.data.formData
 
-    if (!email.trim()) {
+    if (!email || email.length === 0) {
       wx.showToast({
         title: '请输入邮箱',
         icon: 'error'
@@ -71,7 +71,7 @@ Page({
       return
     }
 
-    if (!password.trim()) {
+    if (!password || password.length === 0) {
       wx.showToast({
         title: '请输入密码',
         icon: 'error'
@@ -90,7 +90,7 @@ Page({
     this.setData({ loading: true })
 
     try {
-      const result = await authService.login(email.trim(), password)
+      const result = await authService.login(email, password)
       
       if (result.success) {
         wx.showToast({
@@ -103,10 +103,10 @@ Page({
         app.globalData.userInfo = result.user
         app.globalData.isAdmin = result.user.role === 'admin'
 
-        // 跳转到首页
+        // 跳转到个人中心页面
         setTimeout(() => {
           wx.switchTab({
-            url: '/pages/index/index'
+            url: '/pages/profile/index'
           })
         }, 1500)
       } else {

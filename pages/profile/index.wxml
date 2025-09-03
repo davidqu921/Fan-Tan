@@ -8,16 +8,34 @@
 
   <!-- 用户信息区域 -->
   <view class="user-info-section card">
-    <view class="user-avatar">
-      <image class="avatar-large" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" />
+    <view class="user-info-content">
+      <view class="user-avatar">
+        <image class="avatar-large" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" />
+      </view>
+      <view class="user-details">
+        <text class="user-name text-title">{{userInfo.nickName || '未登录'}}</text>
+        <text class="user-desc text-caption" wx:if="{{userInfo}}">
+          {{userInfo.role === 'admin' ? '管理员' : '羽毛球爱好者'}}
+        </text>
+        <text class="user-desc text-caption" wx:if="{{!userInfo}}">
+          羽毛球爱好者
+        </text>
+        <text class="user-email text-caption" wx:if="{{userInfo && userInfo.email}}">
+          {{userInfo.email}}
+        </text>
+      </view>
     </view>
-    <view class="user-details">
-      <text class="user-name text-title">{{userInfo.nickName || '未登录'}}</text>
-      <text class="user-desc text-caption">羽毛球爱好者</text>
+    <view class="user-actions">
+      <button wx:if="{{!userInfo}}" class="btn btn-primary login-btn" bindtap="onLogin">
+        登录
+      </button>
+      <button class="btn btn-outline test-btn" bindtap="onTestFirebase">
+        测试 Firebase
+      </button>
+      <button wx:if="{{isAdmin}}" class="btn btn-outline clear-btn" bindtap="onClearTestData">
+        清理测试数据
+      </button>
     </view>
-    <button wx:if="{{!userInfo}}" class="btn btn-primary login-btn" bindtap="onLogin">
-      登录
-    </button>
   </view>
 
   <!-- 统计信息 -->

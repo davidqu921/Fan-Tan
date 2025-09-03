@@ -4,6 +4,7 @@
     "pages/activity/detail",
     "pages/activity/join",
     "pages/admin/manage",
+    "pages/admin/create",
     "pages/admin/users",
     "pages/profile/index",
     "pages/auth/login",

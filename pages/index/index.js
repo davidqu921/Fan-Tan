@@ -1,4 +1,5 @@
 // pages/index/index.js
+import activityService from '../../utils/activityService.js'
 const app = getApp()
 
 Page({
@@ -34,18 +35,38 @@ Page({
   },
 
   // 加载活动列表
-  loadActivities() {
+  async loadActivities() {
     this.setData({ loading: true })
     
-    // 模拟API调用
-    setTimeout(() => {
-      const mockActivities = this.getMockActivities()
+    try {
+      const result = await activityService.getActivities(this.data.page)
+      if (result.success) {
+        this.setData({
+          activities: result.data,
+          hasMore: result.hasMore,
+          loading: false
+        })
+      } else {
+        this.setData({
+          activities: [],
+          loading: false
+        })
+        if (result.error && !result.error.includes('not found')) {
+          wx.showToast({
+            title: '加载失败',
+            icon: 'error'
+          })
+        }
+      }
+    } catch (error) {
+      console.error('加载活动失败:', error)
       this.setData({
-        activities: mockActivities,
+        activities: [],
         loading: false
       })
-      wx.stopPullDownRefresh()
-    }, 1000)
+    }
+    
+    wx.stopPullDownRefresh()
   },
 
   // 刷新活动列表
@@ -59,20 +80,33 @@ Page({
   },
 
   // 加载更多活动
-  loadMoreActivities() {
+  async loadMoreActivities() {
     if (!this.data.hasMore) return
     
     this.setData({ loading: true })
     
-    setTimeout(() => {
-      const moreActivities = this.getMockActivities(this.data.page + 1)
+    try {
+      const result = await activityService.getActivities(this.data.page + 1)
+      if (result.success) {
+        this.setData({
+          activities: [...this.data.activities, ...result.data],
+          page: this.data.page + 1,
+          hasMore: result.hasMore,
+          loading: false
+        })
+      } else {
+        this.setData({
+          hasMore: false,
+          loading: false
+        })
+      }
+    } catch (error) {
+      console.error('加载更多活动失败:', error)
       this.setData({
-        activities: [...this.data.activities, ...moreActivities],
-        page: this.data.page + 1,
-        hasMore: moreActivities.length > 0,
+        hasMore: false,
         loading: false
       })
-    }, 1000)
+    }
   },
 
   // 搜索输入
@@ -88,7 +122,7 @@ Page({
   },
 
   // 搜索活动
-  searchActivities(keyword) {
+  async searchActivities(keyword) {
     if (!keyword.trim()) {
       this.refreshActivities()
       return
@@ -96,18 +130,26 @@ Page({
 
     this.setData({ loading: true })
     
-    setTimeout(() => {
-      const allActivities = this.getMockActivities()
-      const filteredActivities = allActivities.filter(activity => 
-        activity.title.includes(keyword) || 
-        activity.location.includes(keyword)
-      )
-      
+    try {
+      const result = await activityService.searchActivities(keyword)
+      if (result.success) {
+        this.setData({
+          activities: result.data,
+          loading: false
+        })
+      } else {
+        this.setData({
+          activities: [],
+          loading: false
+        })
+      }
+    } catch (error) {
+      console.error('搜索活动失败:', error)
       this.setData({
-        activities: filteredActivities,
+        activities: [],
         loading: false
       })
-    }, 500)
+    }
   },
 
   // 点击活动卡片
@@ -125,61 +167,28 @@ Page({
     })
   },
 
-  // 获取模拟数据
-  getMockActivities(page = 1) {
-    const mockData = [
-      {
-        id: '1',
-        title: '周末羽毛球友谊赛',
-        date: '2024-01-15',
-        time: '14:00-16:00',
-        location: '体育馆A馆',
-        rules: '双打比赛，请自备球拍',
-        maxCount: 16,
-        joinedCount: 12,
-        status: 'active',
-        recentJoiners: [
-          { id: '1', name: '张三', avatar: '/images/lcw.jpg' },
-          { id: '2', name: '李四', avatar: '/images/ld.jpg' },
-          { id: '3', name: '王五', avatar: '/images/syq.jpg' }
-        ]
-      },
-      {
-        id: '2',
-        title: '羽毛球训练课',
-        date: '2024-01-16',
-        time: '19:00-21:00',
-        location: '体育馆B馆',
-        rules: '基础训练，适合初学者',
-        maxCount: 20,
-        joinedCount: 20,
-        status: 'full',
-        recentJoiners: [
-          { id: '4', name: '赵六', avatar: '/images/lcw.jpg' },
-          { id: '5', name: '钱七', avatar: '/images/ld.jpg' }
-        ]
-      },
-      {
-        id: '3',
-        title: '羽毛球自由活动',
-        date: '2024-01-10',
-        time: '18:00-20:00',
-        location: '体育馆C馆',
-        rules: '自由组队，无限制',
-        maxCount: null,
-        joinedCount: 8,
-        status: 'ended',
-        recentJoiners: [
-          { id: '6', name: '孙八', avatar: '/images/syq.jpg' }
-        ]
+  // 清理所有活动数据（管理员功能）
+  async clearAllActivities() {
+    try {
+      const result = await activityService.clearAllActivities()
+      if (result.success) {
+        wx.showToast({
+          title: '数据清理完成',
+          icon: 'success'
+        })
+        this.refreshActivities()
+      } else {
+        wx.showToast({
+          title: '清理失败',
+          icon: 'error'
+        })
       }
-    ]
-
-    // 模拟分页
-    if (page > 1) {
-      return [] // 模拟没有更多数据
+    } catch (error) {
+      console.error('清理活动数据时出错:', error)
+      wx.showToast({
+        title: '清理失败',
+        icon: 'error'
+      })
     }
-    
-    return mockData
   }
 })

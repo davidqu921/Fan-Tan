@@ -1,4 +1,6 @@
 // pages/activity/detail.js
+import activityService from '../../utils/activityService.js'
+import joinService from '../../utils/joinService.js'
 const app = getApp()
 
 Page({
@@ -8,6 +10,7 @@ Page({
     joiners: [],
     comments: [],
     hasJoined: false,
+    userJoinData: null,
     commentText: '',
     loading: true
   },
@@ -44,34 +47,90 @@ Page({
   },
 
   // 加载活动详情
-  loadActivityDetail(activityId) {
+  async loadActivityDetail(activityId) {
     this.setData({ loading: true })
     
-    // 模拟API调用
-    setTimeout(() => {
-      const mockActivity = this.getMockActivityDetail(activityId)
-      const mockJoiners = this.getMockJoiners(activityId)
-      const mockComments = this.getMockComments(activityId)
-      
+    try {
+      const result = await activityService.getActivityById(activityId)
+      if (result.success) {
+        // 加载报名列表
+        const joinsResult = await joinService.getActivityJoins(activityId)
+        const joiners = joinsResult.success ? joinsResult.data : []
+        
+        // 更新活动的报名人数
+        const updatedActivity = {
+          ...result.data,
+          joinedCount: joiners.length
+        }
+        
+        this.setData({
+          activity: updatedActivity,
+          joiners: joiners,
+          comments: result.data.comments || [],
+          loading: false
+        })
+      } else {
+        this.setData({
+          activity: {},
+          joiners: [],
+          comments: [],
+          loading: false
+        })
+        wx.showToast({
+          title: '活动不存在',
+          icon: 'error'
+        })
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
+      }
+    } catch (error) {
+      console.error('加载活动详情失败:', error)
       this.setData({
-        activity: mockActivity,
-        joiners: mockJoiners,
-        comments: mockComments,
+        activity: {},
+        joiners: [],
+        comments: [],
         loading: false
       })
-      
-      // 检查用户是否已报名
-      this.checkJoinStatus()
-    }, 1000)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'error'
+      })
+    }
+    
+    // 检查用户是否已报名
+    this.checkJoinStatus()
   },
 
   // 检查报名状态
-  checkJoinStatus() {
+  async checkJoinStatus() {
     const userInfo = app.globalData.userInfo
-    if (!userInfo) return
+    if (!userInfo || !this.data.activityId) {
+      console.log('检查报名状态失败: 用户信息或活动ID缺失', { userInfo, activityId: this.data.activityId })
+      return
+    }
     
-    const hasJoined = this.data.joiners.some(joiner => joiner.userId === userInfo.id)
-    this.setData({ hasJoined })
+    try {
+      console.log('用户信息详情:', userInfo)
+      console.log('检查用户报名状态:', { activityId: this.data.activityId, userId: userInfo.id })
+      
+      // 先获取所有报名记录来调试
+      const allJoinsResult = await joinService.getActivityJoins(this.data.activityId)
+      console.log('活动所有报名记录:', allJoinsResult)
+      
+      const result = await joinService.checkUserJoinStatus(this.data.activityId, userInfo.id)
+      console.log('报名状态检查结果:', result)
+      
+      if (result.success) {
+        this.setData({ 
+          hasJoined: result.hasJoined,
+          userJoinData: result.joinData
+        })
+        console.log('报名状态已更新:', { hasJoined: result.hasJoined, userJoinData: result.joinData })
+      }
+    } catch (error) {
+      console.error('检查报名状态失败:', error)
+    }
   },
 
   // 评论输入
@@ -144,119 +203,55 @@ Page({
   },
 
   // 执行取消报名
-  cancelJoin() {
+  async cancelJoin() {
     const userInfo = app.globalData.userInfo
-    if (!userInfo) return
-    
-    // 模拟API调用
-    wx.showLoading({ title: '处理中...' })
-    
-    setTimeout(() => {
-      const updatedJoiners = this.data.joiners.filter(joiner => joiner.userId !== userInfo.id)
-      const updatedActivity = {
-        ...this.data.activity,
-        joinedCount: updatedJoiners.length
-      }
-      
-      this.setData({
-        joiners: updatedJoiners,
-        activity: updatedActivity,
-        hasJoined: false
-      })
-      
-      wx.hideLoading()
+    if (!userInfo || !this.data.userJoinData) {
+      console.log('取消报名失败: 用户信息或报名数据缺失', { userInfo, userJoinData: this.data.userJoinData })
       wx.showToast({
-        title: '取消成功',
-        icon: 'success'
+        title: '用户信息缺失，请重新登录',
+        icon: 'error'
       })
-    }, 1000)
-  },
-
-  // 获取模拟活动详情
-  getMockActivityDetail(activityId) {
-    const mockActivities = {
-      '1': {
-        id: '1',
-        title: '周末羽毛球友谊赛',
-        date: '2024-01-15',
-        time: '14:00-16:00',
-        location: '体育馆A馆',
-        rules: '双打比赛，请自备球拍',
-        notes: '请提前15分钟到场热身',
-        maxCount: 16,
-        joinedCount: 12,
-        status: 'active'
-      },
-      '2': {
-        id: '2',
-        title: '羽毛球训练课',
-        date: '2024-01-16',
-        time: '19:00-21:00',
-        location: '体育馆B馆',
-        rules: '基础训练，适合初学者',
-        notes: '教练会提供专业指导',
-        maxCount: 20,
-        joinedCount: 20,
-        status: 'full'
-      }
+      return
     }
     
-    return mockActivities[activityId] || mockActivities['1']
+    wx.showLoading({ title: '处理中...' })
+    
+    try {
+      console.log('开始取消报名:', this.data.userJoinData.id)
+      console.log('用户信息:', userInfo)
+      console.log('报名数据:', this.data.userJoinData)
+      
+      const result = await joinService.cancelJoin(this.data.userJoinData.id)
+      console.log('取消报名结果:', result)
+      
+      if (result.success) {
+        // 重新加载活动详情和报名列表
+        await this.loadActivityDetail(this.data.activityId)
+        
+        wx.hideLoading()
+        wx.showToast({
+          title: '取消成功',
+          icon: 'success'
+        })
+      } else {
+        console.error('取消报名失败:', result.error)
+        wx.hideLoading()
+        wx.showToast({
+          title: result.error || '取消失败',
+          icon: 'error'
+        })
+      }
+    } catch (error) {
+      console.error('取消报名失败:', error)
+      wx.hideLoading()
+      wx.showToast({
+        title: '取消失败，请重试',
+        icon: 'error'
+      })
+    }
   },
 
-  // 获取模拟报名用户
-  getMockJoiners(activityId) {
-    const mockJoiners = [
-      {
-        id: '1',
-        userId: 'user1',
-        name: '张三',
-        avatar: '/images/lcw.jpg',
-        contact: '138****1234',
-        joinTime: '2024-01-10 10:30'
-      },
-      {
-        id: '2',
-        userId: 'user2',
-        name: '李四',
-        avatar: '/images/ld.jpg',
-        contact: 'wxid_abcd1234',
-        joinTime: '2024-01-10 11:15'
-      },
-      {
-        id: '3',
-        userId: 'user3',
-        name: '王五',
-        avatar: '/images/syq.jpg',
-        contact: '139****5678',
-        joinTime: '2024-01-10 14:20'
-      }
-    ]
-    
-    return mockJoiners
-  },
 
-  // 获取模拟评论
-  getMockComments(activityId) {
-    const mockComments = [
-      {
-        id: '1',
-        author: '张三',
-        avatar: '/images/lcw.jpg',
-        content: '期待这次活动！',
-        time: '2024-01-10 10:35'
-      },
-      {
-        id: '2',
-        author: '李四',
-        avatar: '/images/ld.jpg',
-        content: '请问需要带什么装备吗？',
-        time: '2024-01-10 11:20'
-      }
-    ]
-    
-    return mockComments
-  },
 
   // 格式化时间
   formatTime(date) {

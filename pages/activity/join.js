@@ -1,22 +1,26 @@
 // pages/activity/join.js
+import activityService from '../../utils/activityService.js'
+import joinService from '../../utils/joinService.js'
 const app = getApp()
 
 Page({
   data: {
     activityId: '',
     activity: {},
+    userInfo: null,
     formData: {
-      name: '',
       contact: '',
       message: ''
     },
-    submitting: false
+    submitting: false,
+    canSubmit: false
   },
 
   onLoad(options) {
     const activityId = options.id
     if (activityId) {
       this.setData({ activityId })
+      this.loadUserInfo()
       this.loadActivityInfo(activityId)
     } else {
       wx.showToast({
@@ -29,53 +33,80 @@ Page({
     }
   },
 
-  // 加载活动信息
-  loadActivityInfo(activityId) {
-    // 模拟API调用
-    setTimeout(() => {
-      const mockActivity = this.getMockActivityInfo(activityId)
-      this.setData({ activity: mockActivity })
-    }, 500)
+  // 加载用户信息
+  loadUserInfo() {
+    const userInfo = app.globalData.userInfo
+    if (userInfo) {
+      this.setData({ userInfo })
+      this.checkCanSubmit()
+    } else {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'error'
+      })
+      setTimeout(() => {
+        wx.navigateBack()
+      }, 1500)
+    }
   },
 
-  // 姓名输入
-  onNameInput(e) {
-    this.setData({
-      'formData.name': e.detail.value
-    })
+  // 加载活动信息
+  async loadActivityInfo(activityId) {
+    try {
+      const result = await activityService.getActivityById(activityId)
+      if (result.success) {
+        this.setData({ activity: result.data })
+      } else {
+        wx.showToast({
+          title: '活动不存在',
+          icon: 'error'
+        })
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
+      }
+    } catch (error) {
+      console.error('加载活动信息失败:', error)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'error'
+      })
+    }
   },
 
   // 联系方式输入
   onContactInput(e) {
+    const contact = e.detail.value
     this.setData({
-      'formData.contact': e.detail.value
+      'formData.contact': contact
     })
+    this.checkCanSubmit()
   },
 
   // 留言输入
   onMessageInput(e) {
+    const message = e.detail.value
     this.setData({
-      'formData.message': e.detail.value
+      'formData.message': message
     })
+    this.checkCanSubmit()
+  },
+
+  // 检查是否可以提交
+  checkCanSubmit() {
+    // 用户已登录即可提交（姓名自动使用登录用户名）
+    const canSubmit = this.data.userInfo && this.data.userInfo.id
+    this.setData({ canSubmit })
   },
 
   // 提交报名
   onSubmitJoin() {
-    const { name, contact, message } = this.data.formData
+    const { contact, message } = this.data.formData
     
-    // 验证必填项
-    if (!name.trim()) {
+    // 验证用户是否已登录
+    if (!this.data.userInfo || !this.data.userInfo.id) {
       wx.showToast({
-        title: '请输入姓名',
-        icon: 'error'
-      })
-      return
-    }
-
-    // 验证姓名长度
-    if (name.trim().length < 2) {
-      wx.showToast({
-        title: '姓名至少2个字符',
+        title: '请先登录',
         icon: 'error'
       })
       return
@@ -103,61 +134,51 @@ Page({
   },
 
   // 执行报名提交
-  submitJoin() {
+  async submitJoin() {
     this.setData({ submitting: true })
     
-    const userInfo = app.globalData.userInfo
-    const joinData = {
-      activityId: this.data.activityId,
-      userId: userInfo ? userInfo.id : 'anonymous',
-      name: this.data.formData.name.trim(),
-      contact: this.data.formData.contact.trim(),
-      message: this.data.formData.message.trim(),
-      joinTime: new Date().toISOString()
-    }
+    try {
+      const userInfo = this.data.userInfo
+      const joinData = {
+        activityId: this.data.activityId,
+        userId: userInfo.id,
+        userName: userInfo.nickName || userInfo.email || '用户',
+        userAvatar: userInfo.avatarUrl || '',
+        name: userInfo.nickName || userInfo.email || '用户', // 使用登录用户名
+        contact: this.data.formData.contact.trim(),
+        message: this.data.formData.message.trim(),
+        joinTime: new Date().toISOString()
+      }
 
-    // 模拟API调用
-    setTimeout(() => {
-      this.setData({ submitting: false })
+      // 调用报名服务
+      const result = await joinService.joinActivity(joinData)
       
-      // 显示成功提示
-      wx.showModal({
-        title: '报名成功',
-        content: '您已成功报名参加活动，请按时参加！',
-        showCancel: false,
-        success: () => {
-          // 返回活动详情页
-          wx.navigateBack()
-        }
+      if (result.success) {
+        wx.showModal({
+          title: '报名成功',
+          content: '您已成功报名参加活动，请按时参加！',
+          showCancel: false,
+          success: () => {
+            // 返回活动详情页
+            wx.navigateBack()
+          }
+        })
+      } else {
+        wx.showToast({
+          title: result.error || '报名失败',
+          icon: 'error'
+        })
+      }
+    } catch (error) {
+      console.error('报名失败:', error)
+      wx.showToast({
+        title: '报名失败，请重试',
+        icon: 'error'
       })
-    }, 2000)
+    } finally {
+      this.setData({ submitting: false })
+    }
   },
 
-  // 获取模拟活动信息
-  getMockActivityInfo(activityId) {
-    const mockActivities = {
-      '1': {
-        id: '1',
-        title: '周末羽毛球友谊赛',
-        date: '2024-01-15',
-        time: '14:00-16:00',
-        location: '体育馆A馆',
-        maxCount: 16,
-        joinedCount: 12,
-        status: 'active'
-      },
-      '2': {
-        id: '2',
-        title: '羽毛球训练课',
-        date: '2024-01-16',
-        time: '19:00-21:00',
-        location: '体育馆B馆',
-        maxCount: 20,
-        joinedCount: 20,
-        status: 'full'
-      }
-    }
-    
-    return mockActivities[activityId] || mockActivities['1']
-  }
+
 })

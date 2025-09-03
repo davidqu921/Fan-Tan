@@ -91,11 +91,10 @@ Page({
   // 检查是否可以注册
   checkCanRegister() {
     const { email, password, confirmPassword, displayName } = this.data.formData
-    const canRegister = email.trim() && 
-                       password.trim() && 
-                       confirmPassword.trim() && 
-                       displayName.trim() &&
-                       password.length >= 6 &&
+    const canRegister = email && email.length > 0 && 
+                       password && password.length >= 6 && 
+                       confirmPassword && confirmPassword.length > 0 && 
+                       displayName && displayName.length >= 2 &&
                        password === confirmPassword
     this.setData({ canRegister })
   },
@@ -106,7 +105,7 @@ Page({
 
     // 邮箱验证
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email.trim())) {
+    if (!emailRegex.test(email)) {
       wx.showToast({
         title: '请输入正确的邮箱格式',
         icon: 'error'
@@ -133,7 +132,7 @@ Page({
     }
 
     // 姓名验证
-    if (displayName.trim().length < 2) {
+    if (displayName.length < 2) {
       wx.showToast({
         title: '姓名至少2个字符',
         icon: 'error'
@@ -142,9 +141,9 @@ Page({
     }
 
     // 手机号验证（如果填写了）
-    if (phone.trim()) {
+    if (phone && phone.length > 0) {
       const phoneRegex = /^1[3-9]\d{9}$/
-      if (!phoneRegex.test(phone.trim())) {
+      if (!phoneRegex.test(phone)) {
         wx.showToast({
           title: '请输入正确的手机号',
           icon: 'error'
@@ -168,13 +167,13 @@ Page({
       const { email, password, displayName, phone, wechat } = this.data.formData
       
       const userData = {
-        displayName: displayName.trim(),
+        displayName: displayName,
         role: this.data.userRole,
-        phone: phone.trim(),
-        wechat: wechat.trim()
+        phone: phone,
+        wechat: wechat
       }
 
-      const result = await authService.register(email.trim(), password, userData)
+      const result = await authService.register(email, password, userData)
       
       if (result.success) {
         wx.showModal({

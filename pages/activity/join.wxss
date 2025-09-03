@@ -91,13 +91,17 @@
 
 .input-field {
   width: 100%;
-  padding: 24rpx;
+  height: 88rpx;
+  padding: 0 24rpx;
   border: 2rpx solid var(--border-color);
   border-radius: var(--radius-input);
   font-size: var(--font-body);
+  line-height: 88rpx;
   background-color: var(--white);
+  color: var(--text-color);
   box-sizing: border-box;
   transition: border-color 0.3s ease;
+  vertical-align: middle;
 }
 
 .input-field:focus {
@@ -105,14 +109,38 @@
 }
 
 .textarea-field {
+  height: 120rpx;
   min-height: 120rpx;
   line-height: 1.5;
+  padding: 24rpx;
   resize: none;
 }
 
 .input-hint {
   display: block;
   margin-top: 12rpx;
+  color: var(--text-light);
+}
+
+/* 用户信息显示 */
+.user-info-display {
+  padding: 24rpx;
+  background-color: var(--bg-light);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-input);
+  border-style: dashed;
+}
+
+.user-name {
+  display: block;
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-color);
+  margin-bottom: 8rpx;
+}
+
+.user-hint {
+  display: block;
   color: var(--text-light);
 }
 

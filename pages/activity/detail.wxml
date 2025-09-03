@@ -42,6 +42,24 @@
           <text class="meta-value">{{activity.notes}}</text>
         </view>
       </view>
+      
+      <view class="meta-item" wx:if="{{activity.cancelDeadline}}">
+        <text class="meta-icon">⏰</text>
+        <view class="meta-content">
+          <text class="meta-label">最晚取消时间</text>
+          <text class="meta-value">{{activity.cancelDeadline}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 活动描述 -->
+    <view class="activity-description" wx:if="{{activity.description}}">
+      <view class="description-header">
+        <text class="description-title text-subtitle">活动描述</text>
+      </view>
+      <view class="description-content">
+        <text class="description-text text-body">{{activity.description}}</text>
+      </view>
     </view>
 
     <!-- 报名统计 -->
@@ -85,13 +103,16 @@
     
     <view wx:else class="joiners-list">
       <view wx:for="{{joiners}}" wx:key="id" class="joiner-item">
-        <image class="avatar" src="{{item.avatar || '/images/default-avatar.png'}}" />
+        <image class="avatar" src="{{item.userAvatar || '/images/default-avatar.png'}}" />
         <view class="joiner-info">
           <text class="joiner-name text-body">{{item.name}}</text>
           <text class="join-time text-caption">{{item.joinTime}}</text>
+          <view class="joiner-message" wx:if="{{item.message}}">
+            <text class="message-text text-caption">💬 {{item.message}}</text>
+          </view>
         </view>
         <view class="joiner-contact" wx:if="{{item.contact}}">
-          <text class="contact-text text-caption">{{item.contact}}</text>
+          <text class="contact-text text-caption">📞 {{item.contact}}</text>
         </view>
       </view>
     </view>
@@ -157,6 +178,9 @@
     >
       取消报名
     </button>
+    <view wx:if="{{hasJoined && activity.cancelDeadline}}" class="cancel-deadline-info">
+      <text class="deadline-text">最晚取消时间：{{activity.cancelDeadline}}</text>
+    </view>
     <button 
       wx:else
       class="btn btn-disabled action-btn" 

@@ -49,6 +49,34 @@
   margin-bottom: 32rpx;
 }
 
+/* 活动描述 */
+.activity-description {
+  margin-bottom: 32rpx;
+  padding: 24rpx;
+  background-color: var(--bg-light);
+  border-radius: var(--radius-card);
+  border-left: 6rpx solid var(--primary-color);
+}
+
+.description-header {
+  margin-bottom: 16rpx;
+}
+
+.description-title {
+  color: var(--text-color);
+  font-weight: var(--font-weight-medium);
+}
+
+.description-content {
+  line-height: 1.6;
+}
+
+.description-text {
+  color: var(--text-color);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .meta-item {
   display: flex;
   align-items: flex-start;
@@ -182,6 +210,20 @@
   color: var(--text-light);
 }
 
+.joiner-message {
+  margin-top: 8rpx;
+  padding: 8rpx 12rpx;
+  background-color: var(--bg-light);
+  border-radius: 8rpx;
+  border-left: 3rpx solid var(--accent-color);
+}
+
+.message-text {
+  color: var(--text-color);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
 .joiner-contact {
   max-width: 200rpx;
 }
@@ -276,6 +318,21 @@
   padding: 24rpx 32rpx;
   border-top: 2rpx solid var(--border-color);
   z-index: 100;
+}
+
+.cancel-deadline-info {
+  width: 100%;
+  text-align: center;
+  margin-top: 16rpx;
+}
+
+.deadline-text {
+  font-size: 24rpx;
+  color: var(--text-light);
+  background: var(--bg-light);
+  padding: 8rpx 16rpx;
+  border-radius: var(--radius-input);
+  display: inline-block;
 }
 
 .action-btn {
