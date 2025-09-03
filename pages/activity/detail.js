@@ -12,7 +12,8 @@ Page({
     hasJoined: false,
     userJoinData: null,
     commentText: '',
-    loading: true
+    loading: true,
+    userInfo: null
   },
 
   onLoad(options) {
@@ -32,6 +33,10 @@ Page({
   },
 
   onShow() {
+    // 更新用户信息
+    const userInfo = app.globalData.userInfo
+    this.setData({ userInfo })
+    
     // 每次显示时检查报名状态
     if (this.data.activityId) {
       this.checkJoinStatus()
@@ -57,6 +62,10 @@ Page({
         const joinsResult = await joinService.getActivityJoins(activityId)
         const joiners = joinsResult.success ? joinsResult.data : []
         
+        // 加载评论列表
+        const commentsResult = await activityService.getActivityComments(activityId)
+        const comments = commentsResult.success ? this.formatComments(commentsResult.data) : []
+        
         // 更新活动的报名人数
         const updatedActivity = {
           ...result.data,
@@ -66,7 +75,7 @@ Page({
         this.setData({
           activity: updatedActivity,
           joiners: joiners,
-          comments: result.data.comments || [],
+          comments: comments,
           loading: false
         })
       } else {
@@ -141,7 +150,7 @@ Page({
   },
 
   // 提交评论
-  onSubmitComment() {
+  async onSubmitComment() {
     const content = this.data.commentText.trim()
     if (!content) return
     
@@ -154,23 +163,49 @@ Page({
       return
     }
     
-    const newComment = {
-      id: Date.now().toString(),
-      author: userInfo.nickName || '匿名用户',
-      avatar: userInfo.avatarUrl || '',
-      content: content,
-      time: this.formatTime(new Date())
+    wx.showLoading({ title: '发送中...' })
+    
+    try {
+      const commentData = {
+        author: userInfo.nickName || '匿名用户',
+        authorId: userInfo.id,
+        avatar: userInfo.avatarUrl || '/images/default-avatar.png',
+        content: content,
+        isAdmin: userInfo.role === 'admin'
+      }
+      
+      const result = await activityService.addComment(this.data.activityId, commentData)
+      
+      if (result.success) {
+        // 重新加载评论列表
+        const commentsResult = await activityService.getActivityComments(this.data.activityId)
+        const comments = commentsResult.success ? this.formatComments(commentsResult.data) : []
+        
+        this.setData({
+          comments: comments,
+          commentText: ''
+        })
+        
+        wx.hideLoading()
+        wx.showToast({
+          title: '评论成功',
+          icon: 'success'
+        })
+      } else {
+        wx.hideLoading()
+        wx.showToast({
+          title: result.error || '评论失败',
+          icon: 'error'
+        })
+      }
+    } catch (error) {
+      console.error('提交评论失败:', error)
+      wx.hideLoading()
+      wx.showToast({
+        title: '评论失败，请重试',
+        icon: 'error'
+      })
     }
-    
-    this.setData({
-      comments: [newComment, ...this.data.comments],
-      commentText: ''
-    })
-    
-    wx.showToast({
-      title: '评论成功',
-      icon: 'success'
-    })
   },
 
   // 报名活动
@@ -252,6 +287,81 @@ Page({
   },
 
 
+
+  // 删除评论
+  async onDeleteComment(e) {
+    const commentId = e.currentTarget.dataset.id
+    const userInfo = app.globalData.userInfo
+    
+    if (!userInfo) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'error'
+      })
+      return
+    }
+    
+    // 检查权限：只有管理员或评论作者可以删除
+    const comment = this.data.comments.find(c => c.id === commentId)
+    if (!comment) return
+    
+    if (userInfo.role !== 'admin' && comment.authorId !== userInfo.id) {
+      wx.showToast({
+        title: '无权限删除',
+        icon: 'error'
+      })
+      return
+    }
+    
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这条评论吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '删除中...' })
+          
+          try {
+            const result = await activityService.deleteComment(commentId)
+            
+            if (result.success) {
+              // 重新加载评论列表
+              const commentsResult = await activityService.getActivityComments(this.data.activityId)
+              const comments = commentsResult.success ? this.formatComments(commentsResult.data) : []
+              
+              this.setData({ comments })
+              
+              wx.hideLoading()
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              })
+            } else {
+              wx.hideLoading()
+              wx.showToast({
+                title: result.error || '删除失败',
+                icon: 'error'
+              })
+            }
+          } catch (error) {
+            console.error('删除评论失败:', error)
+            wx.hideLoading()
+            wx.showToast({
+              title: '删除失败，请重试',
+              icon: 'error'
+            })
+          }
+        }
+      }
+    })
+  },
+
+  // 格式化评论数据
+  formatComments(comments) {
+    return comments.map(comment => ({
+      ...comment,
+      createdAt: this.formatTime(comment.createdAt?.toDate ? comment.createdAt.toDate() : new Date(comment.createdAt))
+    }))
+  },
 
   // 格式化时间
   formatTime(date) {

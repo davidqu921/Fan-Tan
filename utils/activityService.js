@@ -233,6 +233,87 @@ class ActivityService {
     }
   }
 
+  // 添加评论
+  async addComment(activityId, commentData) {
+    try {
+      const commentsRef = collection(db, 'comments');
+      const newComment = {
+        ...commentData,
+        activityId: activityId,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      const docRef = await addDoc(commentsRef, newComment);
+      
+      return {
+        success: true,
+        data: {
+          id: docRef.id,
+          ...newComment
+        }
+      };
+    } catch (error) {
+      console.error('添加评论失败:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // 获取活动评论列表
+  async getActivityComments(activityId) {
+    try {
+      const commentsRef = collection(db, 'comments');
+      const q = query(
+        commentsRef,
+        where('activityId', '==', activityId),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const snapshot = await getDocs(q);
+      const comments = [];
+      
+      snapshot.forEach(doc => {
+        comments.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+      
+      return {
+        success: true,
+        data: comments
+      };
+    } catch (error) {
+      console.error('获取活动评论失败:', error);
+      return {
+        success: false,
+        error: error.message,
+        data: []
+      };
+    }
+  }
+
+  // 删除评论
+  async deleteComment(commentId) {
+    try {
+      const commentRef = doc(db, 'comments', commentId);
+      await deleteDoc(commentRef);
+      
+      return {
+        success: true
+      };
+    } catch (error) {
+      console.error('删除评论失败:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
   // 清理所有活动数据
   async clearAllActivities() {
     try {

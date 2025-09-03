@@ -291,16 +291,49 @@
 
 .comment-header {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 8rpx;
 }
 
+.author-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
 .comment-author {
-  margin-right: 16rpx;
+  margin-right: 12rpx;
+}
+
+.admin-badge {
+  font-size: 20rpx;
+  color: var(--primary-color);
+  background-color: rgba(24, 144, 255, 0.1);
+  padding: 4rpx 8rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid var(--primary-color);
+}
+
+.comment-actions {
+  display: flex;
+  align-items: center;
 }
 
 .comment-time {
   color: var(--text-light);
+  margin-right: 16rpx;
+}
+
+.delete-btn {
+  padding: 8rpx;
+  font-size: 24rpx;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.delete-btn:active {
+  opacity: 1;
 }
 
 .comment-text {

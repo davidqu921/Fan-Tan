@@ -153,8 +153,21 @@
         <image class="avatar avatar-small" src="{{item.avatar || '/images/default-avatar.png'}}" />
         <view class="comment-content">
           <view class="comment-header">
-            <text class="comment-author text-body">{{item.author}}</text>
-            <text class="comment-time text-caption">{{item.time}}</text>
+            <view class="author-info">
+              <text class="comment-author text-body">{{item.author}}</text>
+              <text wx:if="{{item.isAdmin}}" class="admin-badge">管理员</text>
+            </view>
+            <view class="comment-actions">
+              <text class="comment-time text-caption">{{item.createdAt}}</text>
+              <view 
+                wx:if="{{item.authorId === userInfo.id || userInfo.role === 'admin'}}" 
+                class="delete-btn" 
+                data-id="{{item.id}}" 
+                bindtap="onDeleteComment"
+              >
+                🗑️
+              </view>
+            </view>
           </view>
           <text class="comment-text text-body">{{item.content}}</text>
         </view>
