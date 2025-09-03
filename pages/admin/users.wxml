@@ -1,0 +1,93 @@
+<!--pages/admin/users.wxml-->
+<view class="container">
+  <!-- 背景装饰 -->
+  <view class="bg-decoration">
+    <image class="bg-image" src="/images/lcw.jpg" mode="aspectFill" />
+    <view class="bg-overlay"></view>
+  </view>
+
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title text-title">用户管理</text>
+    <text class="page-subtitle text-caption">管理系统用户</text>
+  </view>
+
+  <!-- 用户统计 -->
+  <view class="stats-section">
+    <view class="stat-card card">
+      <text class="stat-number">{{userStats.total}}</text>
+      <text class="stat-label text-caption">总用户数</text>
+    </view>
+    <view class="stat-card card">
+      <text class="stat-number">{{userStats.admins}}</text>
+      <text class="stat-label text-caption">管理员</text>
+    </view>
+    <view class="stat-card card">
+      <text class="stat-number">{{userStats.active}}</text>
+      <text class="stat-label text-caption">活跃用户</text>
+    </view>
+  </view>
+
+  <!-- 用户列表 -->
+  <view class="users-section">
+    <view class="section-header">
+      <text class="section-title text-subtitle">用户列表</text>
+      <button class="btn btn-outline refresh-btn" bindtap="refreshUsers">
+        <text class="btn-icon">🔄</text>
+        刷新
+      </button>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading-container">
+      <text class="loading-text text-caption">加载中...</text>
+    </view>
+
+    <view wx:elif="{{users.length === 0}}" class="empty-container">
+      <text class="empty-icon">👥</text>
+      <text class="empty-text text-caption">暂无用户数据</text>
+    </view>
+
+    <view wx:else class="users-list">
+      <view wx:for="{{users}}" wx:key="uid" class="user-card card">
+        <view class="user-avatar">
+          <image 
+            class="avatar" 
+            src="{{item.avatar || '/images/default-avatar.png'}}" 
+            mode="aspectFill"
+          />
+        </view>
+        
+        <view class="user-info">
+          <view class="user-name">
+            <text class="name text-body">{{item.displayName}}</text>
+            <view class="role-badge {{item.role}}">
+              <text class="role-text">{{item.role === 'admin' ? '管理员' : '用户'}}</text>
+            </view>
+          </view>
+          
+          <view class="user-details">
+            <text class="detail-item text-caption">📧 {{item.email}}</text>
+            <text wx:if="{{item.phone}}" class="detail-item text-caption">📱 {{item.phone}}</text>
+            <text wx:if="{{item.wechat}}" class="detail-item text-caption">💬 {{item.wechat}}</text>
+          </view>
+          
+          <view class="user-meta">
+            <text class="meta-item text-caption">注册时间：{{item.createdAt}}</text>
+            <text class="status-badge {{item.status}}">{{item.status === 'active' ? '活跃' : '非活跃'}}</text>
+          </view>
+        </view>
+        
+        <view class="user-actions">
+          <button 
+            class="btn btn-outline action-btn" 
+            bindtap="toggleUserStatus" 
+            data-uid="{{item.uid}}"
+            data-status="{{item.status}}"
+          >
+            {{item.status === 'active' ? '禁用' : '启用'}}
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

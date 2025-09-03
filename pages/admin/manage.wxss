@@ -1,0 +1,250 @@
+/* pages/admin/manage.wxss */
+
+.container {
+  padding: 0;
+  background-color: var(--background-color);
+  min-height: 100vh;
+}
+
+/* 权限拒绝页面 */
+.permission-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 32rpx;
+  text-align: center;
+}
+
+.denied-icon {
+  font-size: 120rpx;
+  margin-bottom: 32rpx;
+}
+
+.denied-title {
+  margin-bottom: 16rpx;
+  color: var(--text-color);
+}
+
+.denied-desc {
+  margin-bottom: 48rpx;
+  color: var(--text-light);
+}
+
+/* 管理员内容 */
+.admin-content {
+  padding: 24rpx 32rpx;
+}
+
+/* 统计概览 */
+.stats-overview {
+  margin-bottom: 24rpx;
+}
+
+.overview-title {
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid var(--border-color);
+}
+
+.overview-stats {
+  display: flex;
+  justify-content: space-around;
+}
+
+.overview-item {
+  text-align: center;
+}
+
+.overview-number {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 12rpx;
+}
+
+.overview-label {
+  font-size: var(--font-caption);
+  color: var(--text-light);
+}
+
+/* 管理功能区域 */
+.manage-functions {
+  margin-bottom: 24rpx;
+}
+
+.function-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+  margin-top: 24rpx;
+}
+
+.function-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx;
+  background-color: var(--white);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-card);
+  transition: all 0.3s ease;
+}
+
+.function-item:active {
+  background-color: var(--background-color);
+  border-color: var(--primary-color);
+}
+
+.function-icon {
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+
+.function-name {
+  font-size: var(--font-body);
+  color: var(--text-color);
+  text-align: center;
+}
+
+/* 活动管理区域 */
+.activities-section {
+  margin-bottom: 24rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid var(--border-color);
+}
+
+.section-title {
+  flex: 1;
+}
+
+.create-btn {
+  padding: 16rpx 24rpx;
+  font-size: var(--font-body);
+  min-width: 160rpx;
+}
+
+/* 筛选标签 */
+.filter-tabs {
+  display: flex;
+  margin-bottom: 24rpx;
+  background: var(--background-color);
+  border-radius: var(--radius-input);
+  padding: 8rpx;
+}
+
+.filter-tab {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx;
+  font-size: var(--font-body);
+  color: var(--text-light);
+  border-radius: var(--radius-input);
+  transition: all 0.3s ease;
+}
+
+.filter-tab.active {
+  background: var(--white);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* 活动列表 */
+.activities-list {
+  max-height: 800rpx;
+  overflow-y: auto;
+}
+
+.empty-activities {
+  text-align: center;
+  padding: 80rpx 32rpx;
+  color: var(--text-light);
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+  display: block;
+}
+
+.empty-text {
+  margin-bottom: 12rpx;
+}
+
+.empty-desc {
+  color: var(--text-light);
+}
+
+/* 活动项 */
+.activity-item {
+  background: var(--white);
+  border-radius: var(--radius-card);
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  border: 2rpx solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.activity-item:active {
+  transform: scale(0.98);
+  border-color: var(--primary-color);
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.activity-title {
+  flex: 1;
+  margin-right: 16rpx;
+  line-height: 1.4;
+}
+
+.activity-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.meta-text {
+  font-size: var(--font-caption);
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+/* 活动操作按钮 */
+.activity-actions {
+  display: flex;
+  gap: 16rpx;
+  padding-top: 16rpx;
+  border-top: 2rpx solid var(--border-color);
+}
+
+.action-btn {
+  flex: 1;
+  padding: 12rpx 16rpx;
+  font-size: var(--font-caption);
+  min-width: 0;
+}
+
+.action-btn.danger {
+  color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.action-btn.danger:active {
+  background-color: var(--secondary-color);
+  color: var(--white);
+}

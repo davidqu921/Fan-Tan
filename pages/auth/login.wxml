@@ -1,0 +1,70 @@
+<!--pages/auth/login.wxml-->
+<view class="container">
+  <!-- 背景装饰 -->
+  <view class="bg-decoration">
+    <image class="bg-image" src="/images/birdies.jpg" mode="aspectFill" />
+    <view class="bg-overlay"></view>
+  </view>
+
+  <!-- 登录表单 -->
+  <view class="login-form card">
+    <view class="form-header">
+      <text class="form-title text-title">欢迎回来</text>
+      <text class="form-subtitle text-caption">登录您的账户</text>
+    </view>
+
+    <view class="input-group">
+      <label class="input-label input-required">邮箱地址</label>
+      <input 
+        class="input-field" 
+        placeholder="请输入邮箱地址" 
+        value="{{formData.email}}"
+        bindinput="onEmailInput"
+        type="text"
+      />
+    </view>
+
+    <view class="input-group">
+      <label class="input-label input-required">密码</label>
+      <input 
+        class="input-field" 
+        placeholder="请输入密码" 
+        value="{{formData.password}}"
+        bindinput="onPasswordInput"
+        password="{{!showPassword}}"
+      />
+      <view class="password-toggle" bindtap="togglePassword">
+        <text class="toggle-icon">{{showPassword ? '👁️' : '👁️‍🗨️'}}</text>
+      </view>
+    </view>
+
+    <button 
+      class="btn btn-primary login-btn" 
+      bindtap="onLogin"
+      disabled="{{!canLogin || loading}}"
+      loading="{{loading}}"
+    >
+      {{loading ? '登录中...' : '登录'}}
+    </button>
+
+    <view class="form-footer">
+      <text class="footer-text text-caption">还没有账户？</text>
+      <text class="link-text text-caption" bindtap="goToRegister">立即注册</text>
+    </view>
+  </view>
+
+  <!-- 快速注册选项 -->
+  <view class="quick-options card">
+    <view class="options-title text-subtitle">快速注册</view>
+    <view class="options-list">
+      <button class="btn btn-outline option-btn" bindtap="goToUserRegister">
+        <text class="option-icon">👤</text>
+        <text class="option-text">用户注册</text>
+      </button>
+      <button class="btn btn-outline option-btn" bindtap="goToAdminRegister">
+        <text class="option-icon">👨‍💼</text>
+        <text class="option-text">管理员注册</text>
+      </button>
+    </view>
+  </view>
+</view>

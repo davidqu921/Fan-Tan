@@ -1,0 +1,86 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 主背景图片 -->
+  <view class="hero-section">
+    <image class="hero-bg" src="/images/birdies.jpg" mode="aspectFill" />
+    <view class="hero-overlay">
+      <text class="hero-title">羽毛球活动</text>
+      <text class="hero-subtitle">热爱羽毛球，享受运动乐趣</text>
+    </view>
+  </view>
+
+  <!-- 顶部搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input">
+      <text class="search-icon">🔍</text>
+      <input placeholder="搜索活动..." bindinput="onSearchInput" value="{{searchKeyword}}" />
+    </view>
+  </view>
+
+  <!-- 活动列表 -->
+  <view class="activity-list">
+    <view wx:if="{{activities.length === 0 && !loading}}" class="empty-state">
+      <text class="icon">🏸</text>
+      <text class="text-body">暂无活动</text>
+      <text class="text-caption mt-16">管理员还没有发布活动</text>
+    </view>
+
+    <view wx:for="{{activities}}" wx:key="id" class="activity-card" bindtap="onActivityTap" data-id="{{item.id}}">
+      <!-- 活动标题 -->
+      <view class="activity-header">
+        <text class="activity-title text-title">{{item.title}}</text>
+        <view class="status-tag {{item.status === 'active' ? 'status-active' : item.status === 'full' ? 'status-full' : 'status-ended'}}">
+          {{item.status === 'active' ? '进行中' : item.status === 'full' ? '已满员' : '已结束'}}
+        </view>
+      </view>
+
+      <!-- 活动信息 -->
+      <view class="activity-info">
+        <view class="info-item">
+          <text class="info-icon">🕐</text>
+          <text class="info-text">{{item.date}} {{item.time}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-icon">📍</text>
+          <text class="info-text">{{item.location}}</text>
+        </view>
+        <view class="info-item" wx:if="{{item.rules}}">
+          <text class="info-icon">📋</text>
+          <text class="info-text">{{item.rules}}</text>
+        </view>
+      </view>
+
+      <!-- 报名进度 -->
+      <view class="activity-progress">
+        <view class="progress-info">
+          <text class="text-body">已报名 {{item.joinedCount}}/{{item.maxCount || '不限'}} 人</text>
+          <text class="text-caption">{{item.joinedCount}}人参与</text>
+        </view>
+        <view class="progress-bar" wx:if="{{item.maxCount}}">
+          <view class="progress-fill" style="width: {{(item.joinedCount / item.maxCount * 100)}}%"></view>
+        </view>
+      </view>
+
+      <!-- 最新报名用户 -->
+      <view class="recent-joiners" wx:if="{{item.recentJoiners && item.recentJoiners.length > 0}}">
+        <text class="text-caption">最近报名：</text>
+        <view class="joiners-list">
+          <view wx:for="{{item.recentJoiners}}" wx:key="id" wx:for-item="joiner" class="joiner-item">
+            <image class="avatar avatar-small" src="{{joiner.avatar || '/images/default-avatar.png'}}" />
+            <text class="joiner-name">{{joiner.name}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 浮动发布按钮（管理员可见） -->
+  <view wx:if="{{isAdmin}}" class="fab" bindtap="onCreateActivity">
+    <text class="fab-icon">+</text>
+  </view>
+</view>

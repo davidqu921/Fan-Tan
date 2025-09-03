@@ -1,0 +1,122 @@
+<!--pages/admin/manage.wxml-->
+<view class="container">
+  <!-- 管理员权限检查 -->
+  <view wx:if="{{!isAdmin}}" class="permission-denied">
+    <text class="denied-icon">🔒</text>
+    <text class="denied-title text-title">需要管理员权限</text>
+    <text class="denied-desc text-body">请联系管理员获取权限</text>
+    <button class="btn btn-primary" bindtap="onGoBack">返回</button>
+  </view>
+
+  <!-- 管理员界面 -->
+  <view wx:else class="admin-content">
+    <!-- 统计概览 -->
+    <view class="stats-overview card">
+      <view class="overview-title text-subtitle">数据概览</view>
+      <view class="overview-stats">
+        <view class="overview-item">
+          <text class="overview-number">{{overviewStats.totalActivities}}</text>
+          <text class="overview-label">总活动数</text>
+        </view>
+        <view class="overview-item">
+          <text class="overview-number">{{overviewStats.totalJoins}}</text>
+          <text class="overview-label">总报名数</text>
+        </view>
+        <view class="overview-item">
+          <text class="overview-number">{{overviewStats.activeActivities}}</text>
+          <text class="overview-label">进行中</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 管理功能 -->
+    <view class="manage-functions card">
+      <view class="section-title text-subtitle">管理功能</view>
+      <view class="function-grid">
+        <view class="function-item" bindtap="onCreateActivity">
+          <view class="function-icon">➕</view>
+          <text class="function-name">发布活动</text>
+        </view>
+        <view class="function-item" bindtap="onUserManagement">
+          <view class="function-icon">👥</view>
+          <text class="function-name">用户管理</text>
+        </view>
+        <view class="function-item" bindtap="onSystemSettings">
+          <view class="function-icon">⚙️</view>
+          <text class="function-name">系统设置</text>
+        </view>
+        <view class="function-item" bindtap="onDataExport">
+          <view class="function-icon">📊</view>
+          <text class="function-name">数据导出</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 活动管理 -->
+    <view class="activities-section card">
+      <view class="section-header">
+        <text class="section-title text-subtitle">活动管理</text>
+        <button class="btn btn-primary create-btn" bindtap="onCreateActivity">
+          + 发布活动
+        </button>
+      </view>
+
+      <!-- 筛选标签 -->
+      <view class="filter-tabs">
+        <view 
+          wx:for="{{filterTabs}}" 
+          wx:key="key"
+          class="filter-tab {{currentFilter === item.key ? 'active' : ''}}"
+          bindtap="onFilterChange"
+          data-filter="{{item.key}}"
+        >
+          {{item.label}}
+        </view>
+      </view>
+
+      <!-- 活动列表 -->
+      <view class="activities-list">
+        <view wx:if="{{filteredActivities.length === 0}}" class="empty-activities">
+          <text class="empty-icon">📝</text>
+          <text class="empty-text text-body">暂无活动</text>
+          <text class="empty-desc text-caption">点击上方按钮发布第一个活动</text>
+        </view>
+
+        <view wx:else>
+          <view 
+            wx:for="{{filteredActivities}}" 
+            wx:key="id" 
+            class="activity-item"
+            bindtap="onActivityTap"
+            data-id="{{item.id}}"
+          >
+            <view class="activity-header">
+              <text class="activity-title text-body">{{item.title}}</text>
+              <view class="activity-status status-tag {{item.status === 'active' ? 'status-active' : item.status === 'full' ? 'status-full' : 'status-ended'}}">
+                {{item.status === 'active' ? '进行中' : item.status === 'full' ? '已满员' : '已结束'}}
+              </view>
+            </view>
+            
+            <view class="activity-meta">
+              <text class="meta-text">🕐 {{item.date}} {{item.time}}</text>
+              <text class="meta-text">📍 {{item.location}}</text>
+              <text class="meta-text">👥 {{item.joinedCount}}/{{item.maxCount || '不限'}} 人</text>
+            </view>
+
+            <view class="activity-actions">
+              <button class="btn btn-outline action-btn" bindtap="onEditActivity" data-id="{{item.id}}" catchtap="true">
+                编辑
+              </button>
+              <button class="btn btn-outline action-btn" bindtap="onViewJoins" data-id="{{item.id}}" catchtap="true">
+                查看报名
+              </button>
+              <button class="btn btn-outline action-btn danger" bindtap="onDeleteActivity" data-id="{{item.id}}" catchtap="true">
+                删除
+              </button>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

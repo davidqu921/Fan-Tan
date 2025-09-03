@@ -1,0 +1,168 @@
+<!--pages/activity/detail.wxml-->
+<view class="container">
+  <!-- 背景装饰 -->
+  <view class="bg-decoration">
+    <image class="bg-image" src="/images/lcw.jpg" mode="aspectFill" />
+    <view class="bg-overlay"></view>
+  </view>
+
+  <!-- 活动信息卡片 -->
+  <view class="activity-info-card card">
+    <view class="activity-title text-title">{{activity.title}}</view>
+    
+    <view class="activity-meta">
+      <view class="meta-item">
+        <text class="meta-icon">🕐</text>
+        <view class="meta-content">
+          <text class="meta-label">活动时间</text>
+          <text class="meta-value">{{activity.date}} {{activity.time}}</text>
+        </view>
+      </view>
+      
+      <view class="meta-item">
+        <text class="meta-icon">📍</text>
+        <view class="meta-content">
+          <text class="meta-label">活动地点</text>
+          <text class="meta-value">{{activity.location}}</text>
+        </view>
+      </view>
+      
+      <view class="meta-item" wx:if="{{activity.rules}}">
+        <text class="meta-icon">📋</text>
+        <view class="meta-content">
+          <text class="meta-label">活动规则</text>
+          <text class="meta-value">{{activity.rules}}</text>
+        </view>
+      </view>
+      
+      <view class="meta-item" wx:if="{{activity.notes}}">
+        <text class="meta-icon">📝</text>
+        <view class="meta-content">
+          <text class="meta-label">备注说明</text>
+          <text class="meta-value">{{activity.notes}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 报名统计 -->
+    <view class="join-stats">
+      <view class="stats-item">
+        <text class="stats-number">{{activity.joinedCount}}</text>
+        <text class="stats-label">已报名</text>
+      </view>
+      <view class="stats-item" wx:if="{{activity.maxCount}}">
+        <text class="stats-number">{{activity.maxCount}}</text>
+        <text class="stats-label">总名额</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-number">{{activity.status === 'active' ? '进行中' : activity.status === 'full' ? '已满员' : '已结束'}}</text>
+        <text class="stats-label">活动状态</text>
+      </view>
+    </view>
+
+    <!-- 进度条 -->
+    <view class="progress-section" wx:if="{{activity.maxCount}}">
+      <view class="progress-info">
+        <text class="text-body">报名进度</text>
+        <text class="text-caption">{{activity.joinedCount}}/{{activity.maxCount}} 人</text>
+      </view>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{(activity.joinedCount / activity.maxCount * 100)}}%"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 报名列表 -->
+  <view class="joiners-section card">
+    <view class="section-header">
+      <text class="section-title text-subtitle">报名列表</text>
+      <text class="section-count text-caption">({{activity.joinedCount}}人)</text>
+    </view>
+    
+    <view wx:if="{{joiners.length === 0}}" class="empty-joiners">
+      <text class="text-caption">暂无报名</text>
+    </view>
+    
+    <view wx:else class="joiners-list">
+      <view wx:for="{{joiners}}" wx:key="id" class="joiner-item">
+        <image class="avatar" src="{{item.avatar || '/images/default-avatar.png'}}" />
+        <view class="joiner-info">
+          <text class="joiner-name text-body">{{item.name}}</text>
+          <text class="join-time text-caption">{{item.joinTime}}</text>
+        </view>
+        <view class="joiner-contact" wx:if="{{item.contact}}">
+          <text class="contact-text text-caption">{{item.contact}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 评论区 -->
+  <view class="comments-section card">
+    <view class="section-header">
+      <text class="section-title text-subtitle">评论区</text>
+      <text class="section-count text-caption">({{comments.length}}条)</text>
+    </view>
+    
+    <!-- 评论输入框 -->
+    <view class="comment-input">
+      <input 
+        class="comment-field" 
+        placeholder="说点什么..." 
+        value="{{commentText}}"
+        bindinput="onCommentInput"
+        maxlength="200"
+      />
+      <button 
+        class="btn btn-primary comment-btn" 
+        bindtap="onSubmitComment"
+        disabled="{{!commentText.trim()}}"
+      >
+        发送
+      </button>
+    </view>
+    
+    <!-- 评论列表 -->
+    <view wx:if="{{comments.length === 0}}" class="empty-comments">
+      <text class="text-caption">暂无评论</text>
+    </view>
+    
+    <view wx:else class="comments-list">
+      <view wx:for="{{comments}}" wx:key="id" class="comment-item">
+        <image class="avatar avatar-small" src="{{item.avatar || '/images/default-avatar.png'}}" />
+        <view class="comment-content">
+          <view class="comment-header">
+            <text class="comment-author text-body">{{item.author}}</text>
+            <text class="comment-time text-caption">{{item.time}}</text>
+          </view>
+          <text class="comment-text text-body">{{item.content}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <button 
+      wx:if="{{!hasJoined && activity.status === 'active'}}"
+      class="btn btn-primary action-btn" 
+      bindtap="onJoinActivity"
+    >
+      我要报名
+    </button>
+    <button 
+      wx:elif="{{hasJoined}}"
+      class="btn btn-outline action-btn" 
+      bindtap="onCancelJoin"
+    >
+      取消报名
+    </button>
+    <button 
+      wx:else
+      class="btn btn-disabled action-btn" 
+      disabled
+    >
+      {{activity.status === 'full' ? '已满员' : '活动已结束'}}
+    </button>
+  </view>
+</view>

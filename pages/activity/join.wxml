@@ -1,0 +1,83 @@
+<!--pages/activity/join.wxml-->
+<view class="container">
+  <!-- 背景装饰 -->
+  <view class="bg-decoration">
+    <image class="bg-image" src="/images/ld.jpg" mode="aspectFill" />
+    <view class="bg-overlay"></view>
+  </view>
+
+  <!-- 活动信息预览 -->
+  <view class="activity-preview card">
+    <text class="activity-title text-title">{{activity.title}}</text>
+    <view class="activity-meta">
+      <text class="meta-text">🕐 {{activity.date}} {{activity.time}}</text>
+      <text class="meta-text">📍 {{activity.location}}</text>
+    </view>
+  </view>
+
+  <!-- 报名表单 -->
+  <view class="join-form card">
+    <view class="form-title text-subtitle">报名信息</view>
+    
+    <view class="input-group">
+      <label class="input-label input-required">姓名或昵称</label>
+      <input 
+        class="input-field" 
+        placeholder="请输入您的姓名或昵称" 
+        value="{{formData.name}}"
+        bindinput="onNameInput"
+        maxlength="20"
+      />
+    </view>
+
+    <view class="input-group">
+      <label class="input-label">联系方式</label>
+      <input 
+        class="input-field" 
+        placeholder="请输入微信或手机号（选填）" 
+        value="{{formData.contact}}"
+        bindinput="onContactInput"
+        maxlength="50"
+      />
+      <text class="input-hint text-caption">方便活动组织者联系您</text>
+    </view>
+
+    <view class="input-group">
+      <label class="input-label">留言备注</label>
+      <textarea 
+        class="input-field textarea-field" 
+        placeholder="有什么想说的吗？（选填）" 
+        value="{{formData.message}}"
+        bindinput="onMessageInput"
+        maxlength="200"
+        auto-height
+      />
+      <view class="char-count">
+        <text class="text-caption">{{formData.message.length}}/200</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 报名须知 -->
+  <view class="notice-section card">
+    <view class="notice-title text-subtitle">报名须知</view>
+    <view class="notice-content">
+      <text class="notice-item text-body">• 请确保活动时间可以参加</text>
+      <text class="notice-item text-body">• 如有变动请及时取消报名</text>
+      <text class="notice-item text-body">• 请遵守活动规则和场地要求</text>
+      <text class="notice-item text-body">• 活动组织者可能会通过联系方式联系您</text>
+    </view>
+  </view>
+
+  <!-- 底部提交按钮 -->
+  <view class="bottom-actions">
+    <button 
+      class="btn btn-primary submit-btn" 
+      bindtap="onSubmitJoin"
+      disabled="{{!formData.name.trim() || submitting}}"
+      loading="{{submitting}}"
+    >
+      {{submitting ? '提交中...' : '确认报名'}}
+    </button>
+  </view>
+</view>
